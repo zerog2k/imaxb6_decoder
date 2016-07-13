@@ -95,6 +95,8 @@ def hexprint(data, addrfmt=None):
 ## address map
 
 ADDR_CONFIG = 0
+CONFIG_BITMASK = { "safety_timer_enabled": 0x02, "capacity_cutoff_enabled": 0x04,
+                "key_beep_enabled": 0x08, "buzzer_enabled": 0x10 }
 ADDR_NICD_SENS = 1
 ADDR_NIMH_SENS = 2
 ADDR_TEMP_CUTOFF = 3
@@ -158,8 +160,11 @@ while b is not None:
         Vout = two_byte_float(msgbytes, ADDR_VOUT)
         Cout = two_byte_int(msgbytes, ADDR_CHARGE_OUT) 
         time = two_byte_int(msgbytes, ADDR_CHARGE_TIME)
-        print "%s, time: %3d m, Vin: %0.2f V, Vout: %0.2f V, Iout: %0.1f A, Cout: %4d mAh" % \
-            (dt, time, Vin, Vout, Iout, Cout)
+        mode = msgbytes[ADDR_MODE]
+        charging = bool(msgbytes[ADDR_CHARGE_STATE])
+
+        print "%s, mode: %6s, time: %3d m, charging: %s, Vin: %0.2f V, Vout: %0.2f V, Iout: %0.1f A, Cout: %4d mAh" % \
+            (dt, MODES[mode], time, charging, Vin, Vout, Iout, Cout)
     
 
 
