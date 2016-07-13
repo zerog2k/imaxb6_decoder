@@ -14,7 +14,7 @@ import os
 import datetime
 import argparse
 
-ap = argparse.ArgumentParser(description="byte-/bit- comparison of two files")
+ap = argparse.ArgumentParser(description="decodes serial output from Imax B6 chargers")
 ap.add_argument("-d", "--debug", action="store_true",
                 help="debug output")
 ap.add_argument("-p", "--port", required=True)
@@ -104,6 +104,7 @@ ADDR_INPUT_VOLTAGE_CUTOFF = 6
 ADDR_CHARGE_STATE = 7
 ADDR_NICD_SET_CHARGE_CURRENT = 8
 ADDR_NICD_SET_DISCHARGE_CURRENT = 9
+
 ADDR_NIMH_SET_CHARGE_CURRENT = 12
 ADDR_NIMH_SET_DISCHARGE_CURRENT = 13
 ADDR_CYCLE_MODE = 14
@@ -115,7 +116,7 @@ ADDR_LI_SET_DISCHARGE_CELL_COUNT = 19
 ADDR_PB_SET_CHARGE_CURRENT = 20
 ADDR_PB_SET_CELL_COUNT = 21
 ADDR_MODE = 22
-MODES = {"Config", "Li", "NiMH", "NiCd", "Pb", "Save", "Load"}
+MODES = ["Config", "Li", "NiMH", "NiCd", "Pb", "Save", "Load"]
 
 ADDR_CHARGE_STATE = 23
 ADDR_NIMH_SET_DISCHARGE_VOLTAGE = 24
