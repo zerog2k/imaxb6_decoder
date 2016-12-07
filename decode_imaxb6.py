@@ -18,11 +18,19 @@ ap = argparse.ArgumentParser(description="decodes serial output from Imax B6 cha
 ap.add_argument("-d", "--debug", action="store_true",
                 help="debug output")
 ap.add_argument("-p", "--port", required=True)
+ap.add_argument("-f", "--file", help="also log to file")
 args = ap.parse_args()
 
 DEBUG = args.debug
 PORT = args.port
 MSG_SIZE = 72
+
+def log_to_file(line):
+    if not args.file:
+        return 
+    f = open(args.file, 'a')
+    f.write(line + os.linesep)
+    f.close()
 
 def cksum(data):
     sum = 0;
@@ -163,8 +171,12 @@ while b is not None:
         mode = msgbytes[ADDR_MODE]
         charging = bool(msgbytes[ADDR_CHARGE_STATE])
 
-        print "%s, mode: %6s, time: %3d m, charging: %s, Vin: %0.2f V, Vout: %0.2f V, Iout: %0.1f A, Cout: %4d mAh" % \
+        output = "%s, mode: %6s, time: %3d m, charging: %s, Vin: %0.2f V, Vout: %0.2f V, Iout: %0.1f A, Cout: %4d mAh" % \
             (dt, MODES[mode], time, charging, Vin, Vout, Iout, Cout)
+        print(output)
+        if args.file:
+            log_to_file(output)
+
     
 
 
