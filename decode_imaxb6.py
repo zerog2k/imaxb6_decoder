@@ -111,13 +111,16 @@ ADDR_TEMP_CUTOFF = 3
 ADDR_CHG_DCHG_WASTE_TIME = 4
 
 ADDR_INPUT_VOLTAGE_CUTOFF = 6
-ADDR_CHARGE_STATE = 7
+ADDR_CHARGE_STATE = 7       # bit 0x01: 1: charging, 0: discharging; bit 0x10: 1: cycling, 0: single charge/discharge
+CHARGE_STATES = ["Discharge", "Charge"]
+CYCLE_STATES = ["Single", "Cycle"]
 ADDR_NICD_SET_CHARGE_CURRENT = 8
 ADDR_NICD_SET_DISCHARGE_CURRENT = 9
 
 ADDR_NIMH_SET_CHARGE_CURRENT = 12
 ADDR_NIMH_SET_DISCHARGE_CURRENT = 13
-ADDR_CYCLE_MODE = 14
+ADDR_CYCLE_MODE = 14        # 1: {Charge,Discharge}, 0: {Discharge,Charge}
+CYCLE_MODES = ["Discharge->Charge", "Charge->Discharge"]
 ADDR_CYCLE_COUNT = 15
 ADDR_LI_SET_CHARGE_CURRENT = 16
 ADDR_LI_SET_CHARGE_CELL_COUNT = 17
@@ -128,7 +131,8 @@ ADDR_PB_SET_CELL_COUNT = 21
 ADDR_MODE = 22
 MODES = ["Config", "Li", "NiMH", "NiCd", "Pb", "Save", "Load"]
 
-ADDR_CHARGE_STATE = 23
+ADDR_RUN_STATE = 23
+RUN_STATES = ["Standby", "Running"]
 ADDR_NIMH_SET_DISCHARGE_VOLTAGE = 24
 ADDR_NICD_SET_DISCHARGE_VOLTAGE = 26
 ADDR_SAFETY_TIMER = 29
@@ -169,10 +173,11 @@ while b is not None:
         Cout = two_byte_int(msgbytes, ADDR_CHARGE_OUT) 
         time = two_byte_int(msgbytes, ADDR_CHARGE_TIME)
         mode = msgbytes[ADDR_MODE]
-        charging = bool(msgbytes[ADDR_CHARGE_STATE])
-
-        output = "%s, mode: %6s, time: %3d m, charging: %s, Vin: %0.2f V, Vout: %0.2f V, Iout: %0.1f A, Cout: %4d mAh" % \
-            (dt, MODES[mode], time, charging, Vin, Vout, Iout, Cout)
+        charging = msgbytes[ADDR_CHARGE_STATE] & 0xF
+        cycling = msgbytes[ADDR_CHARGE_STATE] >> 4
+        running = msgbytes[ADDR_RUN_STATE]
+        output = "%s, mode: %6s, time: %3d m, %s, %s, %s, Vin: %0.2f V, Vout: %0.2f V, Iout: %0.1f A, Cout: %4d mAh" % \
+            (dt, MODES[mode], time, RUN_STATES[running], CHARGE_STATES[charging], CYCLE_STATES[cycling], Vin, Vout, Iout, Cout)
         print(output)
         if args.file:
             log_to_file(output)
