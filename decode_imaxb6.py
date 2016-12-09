@@ -18,12 +18,14 @@ ap = argparse.ArgumentParser(description="decodes serial output from Imax B6 cha
 ap.add_argument("-d", "--debug", action="store_true",
                 help="debug output")
 ap.add_argument("-p", "--port", required=True)
+ap.add_argument("-i", "--interval", type=int, help="minimum output interval in seconds, default: 1")
 ap.add_argument("-f", "--file", help="also log to file")
 args = ap.parse_args()
 
 DEBUG = args.debug
 PORT = args.port
 MSG_SIZE = 72
+TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 def log_to_file(line):
     if not args.file:
@@ -151,6 +153,7 @@ ADDR_CHARGE_TIME = 68
 ser = serial.Serial(PORT, 9600, bytesize=serial.SEVENBITS)
 
 msg = ""
+dt_prev = datetime.datetime.now()
 b = ser.read()
 while b is not None:
     b = ser.read()
@@ -166,7 +169,7 @@ while b is not None:
         print "%s cnt: %d cksum: %X cksum_verify: %s" % \
             ( hexprint(msg), len(msgbytes), cksum(msgbytes[0:MSG_SIZE]), valid)
     if valid:
-        dt = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        dt_now = datetime.datetime.now()
         Vin = two_byte_float(msgbytes, ADDR_VIN)
         Iout = two_byte_float(msgbytes, ADDR_IOUT)
         Vout = two_byte_float(msgbytes, ADDR_VOUT)
@@ -176,8 +179,14 @@ while b is not None:
         charging = msgbytes[ADDR_CHARGE_STATE] & 0xF
         cycling = msgbytes[ADDR_CHARGE_STATE] >> 4
         running = msgbytes[ADDR_RUN_STATE]
+        if args.interval:
+            tdiff = dt_now - dt_prev
+            if  tdiff.total_seconds() < args.interval:
+                continue
+        dt_prev = dt_now
         output = "%s, mode: %6s, time: %3d m, %s, %s, %s, Vin: %0.2f V, Vout: %0.2f V, Iout: %0.1f A, Cout: %4d mAh" % \
-            (dt, MODES[mode], time, RUN_STATES[running], CHARGE_STATES[charging], CYCLE_STATES[cycling], Vin, Vout, Iout, Cout)
+            (dt_now.strftime(TIME_FORMAT), MODES[mode], time, RUN_STATES[running], CHARGE_STATES[charging], CYCLE_STATES[cycling], \
+            Vin, Vout, Iout, Cout)
         print(output)
         if args.file:
             log_to_file(output)
