@@ -3,6 +3,10 @@ imax b6 serial data decoder
 
 Decodes log stream from Imax B6 charger serial UART output port
 
+works on a Imax B6 charger [like this one from Banggood:](https://www.banggood.com/Wholesale-IMAX-B6-Digital-RC-Lipo-NiMH-battery-Balance-Charger-p-46220.html?p=WX0407753399201409DA)
+
+![image of Imax B6 charger at Banggood.com](https://img1.banggood.com/thumb/large/upload/SKU035917/20120601164150545.jpg?p=WX0407753399201409DA)
+
 ## hardware
 temperature sensor port pinout (front to back): GND, TXD, VCC
 
